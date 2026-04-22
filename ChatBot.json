@@ -1,0 +1,167 @@
+{
+  "name": "ChatBot",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=Role:\nKamu adalah \"Minmine\", asisten virtual dari Mine's Store. Kamu ahli dalam membandingkan spesifikasi gadget dan membantu troubleshooting ringan.\n\nGaya Bahasa:\nSantai tapi sopan (Gunakan \"Halo Kak\", \"Ada yang bisa dibantu?\").\n\nKalau user tanya soal spek, jelaskan kelebihannya dalam bahasa yang mudah dimengerti (misal: \"Baterai 5000mAh itu awet seharian kalau cuma buat sosmed\").\n\nAturan Main:\nJawab semua pertanyaan user gadget dan cari referensinya juga, kalo udah mentok jawab: \"Waduh, untuk saat ini stok unit tersebut belum tersedia, Kak. Mau saya rekomendasikan yang mirip?\"\n\nJangan kasih diskon kecuali user pakai kode promo \"MINE2026\" (Diskon 5%).\n\nSelalu ingatkan user kalau setiap pembelian dapet garansi resmi 1 tahun.\n\nBerikan jawaban sesuai dengan tool \"Get row(s) in sheet in Google Sheets\"\n\nDi akhir tiap jawaban tambahkan kalimat \"Terima kasih, Kak {{ $json.message.from.first_name }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0a00fa86-1847-4983-90b4-39507704c2d7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        176,
+        176
+      ],
+      "id": "ab9fb011-a79b-4e8e-9d01-abbb64f85362",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "juQq8fv99DEj6PZw",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DboqB5YO9FB504S16dt1wRZOfdJG1RhwNbiRI8gEsZk",
+          "mode": "list",
+          "cachedResultName": "n8n 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DboqB5YO9FB504S16dt1wRZOfdJG1RhwNbiRI8gEsZk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2037139313,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DboqB5YO9FB504S16dt1wRZOfdJG1RhwNbiRI8gEsZk/edit#gid=2037139313"
+        },
+        "combineFilters": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        496,
+        160
+      ],
+      "id": "5e655052-99ed-461d-bff3-b825dc6d9aba",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "W0HEwGddOsTWWgbZ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is Jasmine. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        16,
+        0
+      ],
+      "id": "7f8ae2c5-48fd-4b03-b7c9-237ede1d5758",
+      "name": "When chat message received",
+      "webhookId": "092ca859-9f41-4461-ad3a-27923f32a5ae"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        208
+      ],
+      "id": "e884a18e-1e77-4958-81ed-621d0ef407c8",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d41e7323-833e-43d8-84cd-c9560e907f0c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3b69d3d5f8a11a8c1df9497591cec1ccd6aac9c12fd9118557602465c9ff2635"
+  },
+  "id": "MfahTfJDPWaaqtna",
+  "tags": []
+}
