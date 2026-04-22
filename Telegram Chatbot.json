@@ -1,0 +1,181 @@
+{
+  "name": "Telegram Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        -32
+      ],
+      "id": "ea193bd3-5c77-4f09-858f-cfa9ef3ac18b",
+      "name": "Telegram Trigger",
+      "webhookId": "7d46c3a5-3653-4f8b-94b2-bda677b8cbb6",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "DhgGYcBVMxjWwBJ7",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=Role:\nKamu adalah \"Minmine\", asisten virtual dari Mine's Store. Kamu ahli dalam membandingkan spesifikasi gadget dan membantu troubleshooting ringan.\n\nGaya Bahasa:\nSantai tapi sopan (Gunakan \"Halo Kak\", \"Ada yang bisa dibantu?\").\n\nKalau user tanya soal spek, jelaskan kelebihannya dalam bahasa yang mudah dimengerti (misal: \"Baterai 5000mAh itu awet seharian kalau cuma buat sosmed\").\n\nAturan Main:\nJawab semua pertanyaan user gadget dan cari referensinya juga, kalo udah mentok jawab: \"Waduh, untuk saat ini stok unit tersebut belum tersedia, Kak. Mau saya rekomendasikan yang mirip?\"\n\nJangan kasih diskon kecuali user pakai kode promo \"MINE2026\" (Diskon 5%).\n\nSelalu ingatkan user kalau setiap pembelian dapet garansi resmi 1 tahun.\n\nBerikan jawaban sesuai dengan tool \"Get row(s) in sheet in Google Sheets\"\n\nDi akhir tiap jawaban tambahkan kalimat \"Terima kasih, Kak {{ $json.message.from.first_name }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "24936910-4cec-464d-851e-f6b80c8f426d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        176
+      ],
+      "id": "fa329aa2-444f-4397-bf31-65d2cbd0b595",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "juQq8fv99DEj6PZw",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        16
+      ],
+      "id": "c3581cd6-a1e1-4bc6-ae8d-d611ef7f86b2",
+      "name": "Send a text message",
+      "webhookId": "1834accb-ac5e-4b1d-b9cf-e9038ba76e43",
+      "credentials": {
+        "telegramApi": {
+          "id": "DhgGYcBVMxjWwBJ7",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DboqB5YO9FB504S16dt1wRZOfdJG1RhwNbiRI8gEsZk",
+          "mode": "list",
+          "cachedResultName": "n8n 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DboqB5YO9FB504S16dt1wRZOfdJG1RhwNbiRI8gEsZk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2037139313,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DboqB5YO9FB504S16dt1wRZOfdJG1RhwNbiRI8gEsZk/edit#gid=2037139313"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        208
+      ],
+      "id": "2084e554-a2c0-4c75-8c10-a9e1faa427ed",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "W0HEwGddOsTWWgbZ",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f5693d16-d576-44cb-b4cd-cd23bc05da87",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3b69d3d5f8a11a8c1df9497591cec1ccd6aac9c12fd9118557602465c9ff2635"
+  },
+  "id": "r3tjfrlRbZm3dy6p",
+  "tags": []
+}
